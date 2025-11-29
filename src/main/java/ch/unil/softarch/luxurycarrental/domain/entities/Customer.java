@@ -1,6 +1,6 @@
 package ch.unil.softarch.luxurycarrental.domain.entities;
 
-import java.time.LocalDate;
+import java.util.Date;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -13,7 +13,7 @@ public class Customer {
     private String password;               // Login password
     private String phoneNumber;            // Phone number
     private String drivingLicenseNumber;   // Driving license number
-    private LocalDate drivingLicenseExpiryDate; // Driving license expiry date
+    private Date drivingLicenseExpiryDate; // Driving license expiry date
     private int age;                       // Customer age
     private boolean verifiedIdentity;      // Identity verification status
     private String billingAddress;         // Billing address
@@ -23,7 +23,7 @@ public class Customer {
 
     // Constructor with all fields including password
     public Customer(UUID id, String firstName, String lastName, String email, String password,
-                    String phoneNumber, String drivingLicenseNumber, LocalDate drivingLicenseExpiryDate,
+                    String phoneNumber, String drivingLicenseNumber, Date drivingLicenseExpiryDate,
                     int age, boolean verifiedIdentity, String billingAddress, double balance,
                     LocalDateTime creationDate) {
         this.id = id;
@@ -69,8 +69,8 @@ public class Customer {
     public String getDrivingLicenseNumber() { return drivingLicenseNumber; }
     public void setDrivingLicenseNumber(String drivingLicenseNumber) { this.drivingLicenseNumber = drivingLicenseNumber; }
 
-    public LocalDate getDrivingLicenseExpiryDate() { return drivingLicenseExpiryDate; }
-    public void setDrivingLicenseExpiryDate(LocalDate drivingLicenseExpiryDate) { this.drivingLicenseExpiryDate = drivingLicenseExpiryDate; }
+    public Date getDrivingLicenseExpiryDate() { return drivingLicenseExpiryDate; }
+    public void setDrivingLicenseExpiryDate(Date drivingLicenseExpiryDate) { this.drivingLicenseExpiryDate = drivingLicenseExpiryDate; }
 
     public int getAge() { return age; }
     public void setAge(int age) { this.age = age; }
@@ -94,7 +94,7 @@ public class Customer {
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
                 ", email='" + email + '\'' +
-                ", password='" + (password != null ? "***" : null) + '\'' + // mask password
+                ", password='" + (password != null ? "***" : null) + '\'' +
                 ", phoneNumber='" + phoneNumber + '\'' +
                 ", drivingLicenseNumber='" + drivingLicenseNumber + '\'' +
                 ", drivingLicenseExpiryDate=" + drivingLicenseExpiryDate +
