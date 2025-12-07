@@ -2,20 +2,42 @@ package ch.unil.softarch.luxurycarrental.domain.entities;
 
 import ch.unil.softarch.luxurycarrental.domain.enums.BookingStatus;
 import ch.unil.softarch.luxurycarrental.domain.enums.PaymentStatus;
+import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.util.UUID;
 
+@Entity
+@Table(name = "booking")
 public class Booking {
 
-    private UUID bookingId;             // Booking ID
-    private Car car;                     // Rented car
-    private Customer customer;           // Customer who made the booking
-    private LocalDate startDate;         // Rental start date
-    private LocalDate endDate;           // Rental end date
-    private double totalCost;            // Total cost
-    private double depositAmount;        // Deposit amount
-    private BookingStatus bookingStatus; // Booking status
-    private PaymentStatus paymentStatus; // Payment status
+    @Id
+    @Column(columnDefinition = "BINARY(16)")
+    private UUID bookingId;  // Booking ID
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "car_id", nullable = false)
+    private Car car;  // Rented car
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "customer_id", nullable = false)
+    private Customer customer;  // Customer who made the booking
+
+    private LocalDate startDate;  // Rental start date
+    private LocalDate endDate;    // Rental end date
+
+    private double totalCost;      // Total cost
+    private double depositAmount;  // Deposit amount
+
+    @Enumerated(EnumType.STRING)
+    private BookingStatus bookingStatus;  // Booking status
+
+    @Enumerated(EnumType.STRING)
+    private PaymentStatus paymentStatus;  // Payment status
+
+    // No-arg constructor with auto-generated UUID
+    public Booking() {
+        this.bookingId = UUID.randomUUID();
+    }
 
     // Constructor with all fields
     public Booking(UUID bookingId, Car car, Customer customer,
@@ -33,10 +55,7 @@ public class Booking {
         this.paymentStatus = paymentStatus;
     }
 
-    // No-arg constructor
-    public Booking() {}
-
-    // Getter / Setter
+    // ---------- Getter & Setter ----------
     public UUID getBookingId() { return bookingId; }
     public void setBookingId(UUID bookingId) { this.bookingId = bookingId; }
 
@@ -64,6 +83,7 @@ public class Booking {
     public PaymentStatus getPaymentStatus() { return paymentStatus; }
     public void setPaymentStatus(PaymentStatus paymentStatus) { this.paymentStatus = paymentStatus; }
 
+    // ---------- toString ----------
     @Override
     public String toString() {
         return "Booking{" +

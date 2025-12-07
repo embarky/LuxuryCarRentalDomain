@@ -1,27 +1,55 @@
 package ch.unil.softarch.luxurycarrental.domain.entities;
 
+import jakarta.persistence.*;
 import java.util.Date;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+@Entity
+@Table(name = "customer")
 public class Customer {
 
+    @Id
+    @Column(columnDefinition = "BINARY(16)")
     private UUID id;                       // Unique customer ID (UUID)
+
+    @Column(nullable = false)
     private String firstName;              // Customer first name
+
+    @Column(nullable = false)
     private String lastName;               // Customer last name
+
+    @Column(nullable = false, unique = true)
     private String email;                  // Email address
+
+    @Column(nullable = false)
     private String password;               // Login password
+
     private String phoneNumber;            // Phone number
+
+    @Column(unique = true)
     private String drivingLicenseNumber;   // Driving license number
+
+    @Temporal(TemporalType.DATE)
     private Date drivingLicenseExpiryDate; // Driving license expiry date
+
     private int age;                       // Customer age
+
     private boolean verifiedIdentity;      // Identity verification status
+
     private String billingAddress;         // Billing address
+
     private double balance;                // Balance for deposits and rental payments
+
     private LocalDateTime creationDate;    // Account creation timestamp
 
+    // No-arg constructor required by JPA
+    public Customer() {
+        this.id = UUID.randomUUID();
+        this.creationDate = LocalDateTime.now();
+    }
 
-    // Constructor with all fields including password
+    // Constructor with all fields
     public Customer(UUID id, String firstName, String lastName, String email, String password,
                     String phoneNumber, String drivingLicenseNumber, Date drivingLicenseExpiryDate,
                     int age, boolean verifiedIdentity, String billingAddress, double balance,
@@ -39,12 +67,6 @@ public class Customer {
         this.billingAddress = billingAddress;
         this.balance = balance;
         this.creationDate = creationDate;
-    }
-
-    // No-arg constructor with auto-generated UUID and creationDate
-    public Customer() {
-        this.id = UUID.randomUUID();
-        this.creationDate = LocalDateTime.now();
     }
 
     // Getter / Setter

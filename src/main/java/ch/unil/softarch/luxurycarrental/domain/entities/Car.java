@@ -1,24 +1,52 @@
 package ch.unil.softarch.luxurycarrental.domain.entities;
 
 import ch.unil.softarch.luxurycarrental.domain.enums.CarStatus;
-
+import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.util.UUID;
 
+@Entity
+@Table(name = "car")
 public class Car {
 
-    private UUID id;                       // Unique car ID (UUID)
-    private String licensePlate;           // License plate number
-    private CarType carType;               // Car type information (references CarType)
-    private double dailyRentalPrice;       // Daily rental price
-    private double depositAmount;          // Deposit amount
-    private CarStatus status;              // Rental availability status
-    private String imageUrl;               // Image URL
-    private LocalDate registrationDate;    // Registration / Service start date
-    private LocalDate lastMaintenanceDate; // Last maintenance date
-    private String vin;                     // Vehicle Identification Number (VIN)
-    private String color;                   // Car color
+    @Id
+    @Column(columnDefinition = "BINARY(16)")
+    private UUID id;  // Unique car ID (UUID)
+
+    @Column(nullable = false, unique = true)
+    private String licensePlate;  // License plate number
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id", nullable = false)
+    private CarType carType;  // Car type information (references CarType)
+
+    @Column(nullable = false)
+    private double dailyRentalPrice;  // Daily rental price
+
+    @Column(nullable = false)
+    private double depositAmount;  // Deposit amount
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private CarStatus status;  // Rental availability status
+
+    private String imageUrl;  // Image URL
+
+    private LocalDate registrationDate;  // Registration / Service start date
+
+    private LocalDate lastMaintenanceDate;  // Last maintenance date
+
+    @Column(unique = true)
+    private String vin;  // Vehicle Identification Number (VIN)
+
+    private String color;  // Car color
+
     private LocalDate insuranceExpiryDate;  // Insurance expiry date
+
+    // No-arg constructor with auto-generated UUID
+    public Car() {
+        this.id = UUID.randomUUID();
+    }
 
     // Constructor with all fields
     public Car(UUID id, String licensePlate, CarType carType, double dailyRentalPrice,
@@ -39,12 +67,7 @@ public class Car {
         this.insuranceExpiryDate = insuranceExpiryDate;
     }
 
-    // No-arg constructor with auto-generated UUID
-    public Car() {
-        this.id = UUID.randomUUID();
-    }
-
-    // Getter / Setter
+    // ---------- Getter & Setter ----------
     public UUID getId() { return id; }
     public void setId(UUID id) { this.id = id; }
 
@@ -81,6 +104,7 @@ public class Car {
     public LocalDate getInsuranceExpiryDate() { return insuranceExpiryDate; }
     public void setInsuranceExpiryDate(LocalDate insuranceExpiryDate) { this.insuranceExpiryDate = insuranceExpiryDate; }
 
+    // ---------- toString ----------
     @Override
     public String toString() {
         return "Car{" +

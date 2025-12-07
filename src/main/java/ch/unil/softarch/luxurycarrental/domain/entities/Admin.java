@@ -1,32 +1,52 @@
 package ch.unil.softarch.luxurycarrental.domain.entities;
 
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
 
+@Entity
+@Table(name = "admin")
 public class Admin {
 
-    private UUID id;                  // Administrator ID
-    private String username;          // Login username
-    private String password;          // Login password (can be encrypted later)
-    private String name;              // Administrator full name
-    private String email;             // Email address
+    @Id
+    @Column(columnDefinition = "BINARY(16)")
+    private UUID id;  // Administrator ID
+
+    @Column(nullable = false, unique = true)
+    private String username;  // Login username
+
+    @Column(nullable = false)
+    private String password;  // Login password (can be encrypted later)
+
+    @Column(nullable = false)
+    private String name;  // Administrator full name
+
+    @Column(nullable = false, unique = true)
+    private String email;  // Email address
+
+    @Column(nullable = false)
     private LocalDateTime createdAt;  // Account creation timestamp
+
+    @Column(nullable = false)
     private LocalDateTime updatedAt;  // Last update timestamp
 
-    // No-arg constructor
+    // No-arg constructor with auto-generated UUID and timestamps
     public Admin() {
+        this.id = UUID.randomUUID();
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
     }
 
-    // Constructor with all main fields
+    // Constructor with main fields
     public Admin(UUID id, String username, String password, String name, String email) {
         this.id = id;
         this.username = username;
         this.password = password;
         this.name = name;
         this.email = email;
-        this.createdAt = LocalDateTime.now(); // Set creation time to now
-        this.updatedAt = LocalDateTime.now(); // Set initial update time to now
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
     }
 
     // ---------- Getter & Setter ----------

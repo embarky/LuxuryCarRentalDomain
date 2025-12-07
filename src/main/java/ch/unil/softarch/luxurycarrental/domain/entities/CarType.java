@@ -2,28 +2,55 @@ package ch.unil.softarch.luxurycarrental.domain.entities;
 
 import ch.unil.softarch.luxurycarrental.domain.enums.DriveType;
 import ch.unil.softarch.luxurycarrental.domain.enums.Transmission;
+import jakarta.persistence.*;
 
 import java.util.List;
 import java.util.UUID;
 
+@Entity
+@Table(name = "car_type")
 public class CarType {
 
-    private UUID id;                    // Unique identifier
-    private String category;       // Car category
-    private String brand;               // Brand
-    private String model;               // Model
-    private String engine;              // Engine
-    private int power;                  // Power [hp]
-    private int maxSpeed;               // Maximum speed [km/h]
-    private double acceleration;        // 0-100 km/h acceleration [s]
-    private double weight;              // Weight [kg]
-    private DriveType driveType;        // Drive type
-    private Transmission transmission;  // Transmission type
-    private int seats;                  // Number of seats
-    private String description;         // Description
-    private List<String> features;      // List of features
+    @Id
+    @Column(columnDefinition = "BINARY(16)")
+    private UUID id;  // Unique identifier
 
-    // Constructor with id
+    @Column(nullable = false)
+    private String category;  // Car category
+
+    @Column(nullable = false)
+    private String brand;  // Brand
+
+    @Column(nullable = false)
+    private String model;  // Model
+
+    private String engine;  // Engine
+
+    private int power;  // Power [hp]
+
+    private int maxSpeed;  // Maximum speed [km/h]
+
+    private double acceleration;  // 0-100 km/h acceleration [s]
+
+    private double weight;  // Weight [kg]
+
+    @Enumerated(EnumType.STRING)
+    private DriveType driveType;  // Drive type
+
+    @Enumerated(EnumType.STRING)
+    private Transmission transmission;  // Transmission type
+
+    private int seats;  // Number of seats
+
+    @Column(length = 1000)
+    private String description;  // Description
+
+    @ElementCollection
+    @CollectionTable(name = "car_type_features", joinColumns = @JoinColumn(name = "car_type_id"))
+    @Column(name = "feature")
+    private List<String> features;  // List of features
+
+    // Constructor with all fields
     public CarType(UUID id, String category, String brand, String model, String engine,
                    int power, int maxSpeed, double acceleration, double weight,
                    DriveType driveType, Transmission transmission,
@@ -96,7 +123,7 @@ public class CarType {
     public String toString() {
         return "CarType{" +
                 "id=" + id +
-                ", category=" + category +
+                ", category='" + category + '\'' +
                 ", brand='" + brand + '\'' +
                 ", model='" + model + '\'' +
                 ", engine='" + engine + '\'' +
