@@ -11,6 +11,13 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Unit tests for the {@link Customer} domain entity.
+ * <p>
+ * This class verifies the behavior of the Customer POJO (Plain Old Java Object),
+ * specifically focusing on data encapsulation (Getters/Setters) and the toString method.
+ * </p>
+ */
 class CustomerTest {
 
     private Customer customer;
@@ -18,10 +25,15 @@ class CustomerTest {
     private Date licenseExpiry;
     private LocalDateTime creationDate;
 
+    /**
+     * Sets up the test environment before each test method execution.
+     * Initializes a fresh Customer instance with sample data to ensure test isolation.
+     */
     @BeforeEach
     void setUp() {
         id = UUID.randomUUID();
-        // 使用 Calendar 构造 Date
+
+        // Create a specific java.util.Date for the license expiry (December 31, 2030)
         Calendar cal = Calendar.getInstance();
         cal.set(2030, Calendar.DECEMBER, 31, 0, 0, 0);
         cal.set(Calendar.MILLISECOND, 0);
@@ -29,7 +41,8 @@ class CustomerTest {
 
         creationDate = LocalDateTime.now();
 
-        // 初始化 Customer
+        // 1. Initialize the Customer object
+        // Note: The constructor was modified to remove 'creationDate' as it is now managed by JPA callbacks.
         customer = new Customer(
                 id,
                 "Alice",
@@ -42,14 +55,22 @@ class CustomerTest {
                 30,
                 true,
                 "123 Main St, City",
-                500.0,
-                creationDate
+                500.0
         );
+
+        // 2. Manually set the creationDate for testing purposes
+        // Rationale: In a standard JUnit test (without a JPA container), the @PrePersist
+        // lifecycle callback is NOT triggered automatically. To verify the getter method,
+        // we must manually invoke the setter here.
+        customer.setCreationDate(creationDate);
     }
 
+    /**
+     * Verifies that all Getter methods return the correct values initialized in the constructor.
+     */
     @Test
     void testGetters() {
-        assertEquals(id, customer.getId());
+        assertEquals(id, customer.getId(), "ID should match the initialized value");
         assertEquals("Alice", customer.getFirstName());
         assertEquals("Smith", customer.getLastName());
         assertEquals("alice.smith@example.com", customer.getEmail());
@@ -58,21 +79,28 @@ class CustomerTest {
         assertEquals("DL123456", customer.getDrivingLicenseNumber());
         assertEquals(licenseExpiry, customer.getDrivingLicenseExpiryDate());
         assertEquals(30, customer.getAge());
-        assertTrue(customer.isVerifiedIdentity());
+        assertTrue(customer.isVerifiedIdentity(), "Identity should be verified");
         assertEquals("123 Main St, City", customer.getBillingAddress());
         assertEquals(500.0, customer.getBalance());
+
+        // Validates that the manually set date is retrievable
         assertEquals(creationDate, customer.getCreationDate());
     }
 
+    /**
+     * Verifies that all Setter methods correctly update the entity's state.
+     */
     @Test
     void testSetters() {
         LocalDateTime now = LocalDateTime.now();
 
+        // Create a new future date for testing updates
         Calendar cal = Calendar.getInstance();
         cal.set(2035, Calendar.JANUARY, 1, 0, 0, 0);
         cal.set(Calendar.MILLISECOND, 0);
         Date newExpiry = cal.getTime();
 
+        // Apply changes using setters
         customer.setFirstName("Bob");
         customer.setLastName("Johnson");
         customer.setEmail("bob.johnson@example.com");
@@ -86,6 +114,7 @@ class CustomerTest {
         customer.setBalance(1000.0);
         customer.setCreationDate(now);
 
+        // Verify that changes were persisted in the object
         assertEquals("Bob", customer.getFirstName());
         assertEquals("Johnson", customer.getLastName());
         assertEquals("bob.johnson@example.com", customer.getEmail());
@@ -94,19 +123,28 @@ class CustomerTest {
         assertEquals("DL654321", customer.getDrivingLicenseNumber());
         assertEquals(newExpiry, customer.getDrivingLicenseExpiryDate());
         assertEquals(40, customer.getAge());
-        assertFalse(customer.isVerifiedIdentity());
+        assertFalse(customer.isVerifiedIdentity(), "Identity should now be unverified");
         assertEquals("456 Another St", customer.getBillingAddress());
         assertEquals(1000.0, customer.getBalance());
         assertEquals(now, customer.getCreationDate());
     }
 
+    /**
+     * Verifies that the toString method generates a string containing key information
+     * and that sensitive data (like the password) is masked.
+     */
     @Test
     void testToString() {
         String str = customer.toString();
-        assertTrue(str.contains(id.toString()));
+
+        // Assert that essential fields are present in the string representation
+        assertTrue(str.contains(id.toString()), "toString should contain the ID");
         assertTrue(str.contains("Alice"));
         assertTrue(str.contains("Smith"));
         assertTrue(str.contains("alice.smith@example.com"));
-        assertTrue(str.contains("***")); // password is masked
+
+        // Assert that the password is NOT shown in plain text
+        // (Assuming logic: password != null ? "***" : null)
+        assertTrue(str.contains("***"), "Password should be masked in toString output");
     }
 }

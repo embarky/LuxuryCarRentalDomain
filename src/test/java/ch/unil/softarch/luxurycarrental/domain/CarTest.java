@@ -9,22 +9,37 @@ import java.time.LocalDate;
 import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Unit tests for the {@link Car} domain entity.
+ */
 class CarTest {
 
     private Car car;
     private CarType carType;
+    private UUID carId;
 
     @BeforeEach
     void setUp() {
-        // Create a sample CarType
+        carId = UUID.randomUUID();
+
+        // 1. Prepare dependencies (CarType)
+        // Note: Using the CarType constructor without ID as per previous modifications
         carType = new CarType();
         carType.setBrand("Tesla");
         carType.setModel("Model S");
         carType.setSeats(5);
+        // We might want to set an ID for CarType manually if we were testing deeper relations
+        carType.setId(UUID.randomUUID());
 
-        // Create a sample Car
+        // 2. Initialize Car
+        // We use the no-arg constructor and setters here, which is a common pattern
+        // for entities with many fields.
         car = new Car();
-        car.setId(UUID.randomUUID());
+
+        // 3. Manually set ID
+        // Essential step: @PrePersist is not triggered in unit tests.
+        car.setId(carId);
+
         car.setLicensePlate("ABC-1234");
         car.setCarType(carType);
         car.setDailyRentalPrice(100.0);
@@ -40,7 +55,7 @@ class CarTest {
 
     @Test
     void testCarConstructorAndGetters() {
-        assertNotNull(car.getId());
+        assertEquals(carId, car.getId(), "ID should match the manually set value");
         assertEquals("ABC-1234", car.getLicensePlate());
         assertEquals(carType, car.getCarType());
         assertEquals(100.0, car.getDailyRentalPrice());
@@ -69,4 +84,12 @@ class CarTest {
         assertEquals("XYZ-5678", car.getLicensePlate());
     }
 
+    @Test
+    void testToString() {
+        String str = car.toString();
+        // Verify key information is present
+        assertTrue(str.contains(carId.toString()));
+        assertTrue(str.contains("ABC-1234"));
+        assertTrue(str.contains("Model S")); // From the linked CarType
+    }
 }

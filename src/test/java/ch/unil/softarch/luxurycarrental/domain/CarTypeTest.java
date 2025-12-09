@@ -13,6 +13,9 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Unit tests for the {@link CarType} domain entity.
+ */
 class CarTypeTest {
 
     private CarType carType;
@@ -24,8 +27,8 @@ class CarTypeTest {
         id = UUID.randomUUID();
         features = Arrays.asList("Air Conditioning", "GPS", "Bluetooth");
 
+        // 1. Updated constructor call: No ID passed here
         carType = new CarType(
-                id,
                 "SUV",
                 "Toyota",
                 "RAV4",
@@ -40,6 +43,11 @@ class CarTypeTest {
                 "Reliable compact SUV",
                 features
         );
+
+        // 2. Manual ID setting
+        // Since @PrePersist is not triggered in unit tests, we set the ID manually
+        // to verify getters and toString behavior.
+        carType.setId(id);
     }
 
     @Test
@@ -72,6 +80,8 @@ class CarTypeTest {
     @Test
     void testToString() {
         String str = carType.toString();
+        // Verify key information including ID and fields
+        assertTrue(str.contains(id.toString()));
         assertTrue(str.contains("Toyota"));
         assertTrue(str.contains("RAV4"));
         assertTrue(str.contains("SUV"));

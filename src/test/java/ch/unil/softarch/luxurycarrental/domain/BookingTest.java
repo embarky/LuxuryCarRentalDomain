@@ -14,6 +14,9 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Unit tests for the {@link Booking} domain entity.
+ */
 class BookingTest {
 
     private Booking booking;
@@ -26,13 +29,19 @@ class BookingTest {
     @BeforeEach
     void setUp() {
         bookingId = UUID.randomUUID();
-        car = new Car(); // 可以创建一个简单Car对象或mock
-        customer = new Customer(); // 可以创建一个简单Customer对象或mock
+
+        // Initialize dummy objects for relationships
+        car = new Car();
+        car.setLicensePlate("TEST-PLATE"); // Set fields used in toString
+
+        customer = new Customer();
+        customer.setEmail("test@example.com"); // Set fields used in toString
+
         startDate = LocalDate.of(2025, 11, 1);
         endDate = LocalDate.of(2025, 11, 5);
 
+        // 1. Initialize Booking using the new constructor (without ID)
         booking = new Booking(
-                bookingId,
                 car,
                 customer,
                 startDate,
@@ -42,6 +51,10 @@ class BookingTest {
                 BookingStatus.PENDING,
                 PaymentStatus.SUCCESSFUL
         );
+
+        // 2. Manually set the ID for testing
+        // Rationale: @PrePersist is not triggered in unit tests.
+        booking.setBookingId(bookingId);
     }
 
     @Test
@@ -69,8 +82,13 @@ class BookingTest {
     @Test
     void testToString() {
         String str = booking.toString();
+        // Verify key fields are present
         assertTrue(str.contains(bookingId.toString()));
         assertTrue(str.contains("500.0"));
         assertTrue(str.contains("PENDING"));
+
+        // Verify related entity info (based on updated toString logic)
+        assertTrue(str.contains("TEST-PLATE"));
+        assertTrue(str.contains("test@example.com"));
     }
 }

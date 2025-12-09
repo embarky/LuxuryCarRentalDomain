@@ -1,59 +1,108 @@
 package ch.unil.softarch.luxurycarrental.domain.entities;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
+import java.io.Serializable;
 import java.util.Date;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+/**
+ * Represents a Customer in the system.
+ * <p>
+ * This class is a JPA Entity mapped to the "customer" table.
+ * It implements Serializable to support object persistence and transmission.
+ * </p>
+ */
 @Entity
 @Table(name = "customer")
-public class Customer {
+public class Customer implements Serializable {
 
+    // Unique identifier for serialization interoperability
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * Unique customer ID.
+     * Stored as binary(16) for efficient UUID storage in databases.
+     */
     @Id
-    @Column(columnDefinition = "BINARY(16)")
-    private UUID id;                       // Unique customer ID (UUID)
+    @GeneratedValue
+    @Column(length = 36)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private UUID id;
 
     @Column(nullable = false)
-    private String firstName;              // Customer first name
+    private String firstName;
 
     @Column(nullable = false)
-    private String lastName;               // Customer last name
+    private String lastName;
 
+    /**
+     * Customer's email address, used for login and communication.
+     * Must be unique across the system.
+     */
     @Column(nullable = false, unique = true)
-    private String email;                  // Email address
+    private String email;
 
+    /**
+     * Encrypted login password.
+     */
     @Column(nullable = false)
-    private String password;               // Login password
+    private String password;
 
-    private String phoneNumber;            // Phone number
+    private String phoneNumber;
 
     @Column(unique = true)
-    private String drivingLicenseNumber;   // Driving license number
+    private String drivingLicenseNumber;
 
+    /**
+     * Expiry date of the driving license.
+     * Using java.util.Date with @Temporal as per legacy JPA patterns,
+     * though LocalDate is preferred in newer Java versions.
+     */
     @Temporal(TemporalType.DATE)
-    private Date drivingLicenseExpiryDate; // Driving license expiry date
+    private Date drivingLicenseExpiryDate;
 
-    private int age;                       // Customer age
+    private int age;
 
-    private boolean verifiedIdentity;      // Identity verification status
+    /**
+     * Flag indicating if the customer's identity documents have been verified.
+     */
+    private boolean verifiedIdentity;
 
-    private String billingAddress;         // Billing address
+    private String billingAddress;
 
-    private double balance;                // Balance for deposits and rental payments
+    /**
+     * Current account balance used for deposits or payments.
+     */
+    private double balance;
 
-    private LocalDateTime creationDate;    // Account creation timestamp
+    /**
+     * Timestamp when the customer account was created.
+     */
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime creationDate;
 
-    // No-arg constructor required by JPA
+    // -------------------------------------------------------------------------
+    // Constructors
+    // -------------------------------------------------------------------------
+
+    /**
+     * No-arg constructor required by JPA specifications.
+     */
     public Customer() {
-        this.id = UUID.randomUUID();
-        this.creationDate = LocalDateTime.now();
+        // ID and creationDate initialization moved to @PrePersist callback
     }
 
-    // Constructor with all fields
+    /**
+     * Constructor to initialize a customer with specific details.
+     * Note: ID and creationDate are handled automatically by lifecycle callbacks.
+     */
     public Customer(UUID id, String firstName, String lastName, String email, String password,
                     String phoneNumber, String drivingLicenseNumber, Date drivingLicenseExpiryDate,
-                    int age, boolean verifiedIdentity, String billingAddress, double balance,
-                    LocalDateTime creationDate) {
+                    int age, boolean verifiedIdentity, String billingAddress, double balance) {
+        // We typically ignore the passed ID in favor of auto-generation,
+        // or you can set it if you are migrating existing data.
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -66,10 +115,33 @@ public class Customer {
         this.verifiedIdentity = verifiedIdentity;
         this.billingAddress = billingAddress;
         this.balance = balance;
-        this.creationDate = creationDate;
+        // creationDate is not set here, it will be set on persist
     }
 
-    // Getter / Setter
+    // -------------------------------------------------------------------------
+    // Lifecycle Callbacks
+    // -------------------------------------------------------------------------
+
+    /**
+     * Executed automatically before the entity is persisted (inserted) into the database.
+     * Generates a unique ID if missing and records the creation timestamp.
+     */
+    @PrePersist
+    protected void onCreate() {
+        if (this.id == null) {
+            this.id = UUID.randomUUID();
+        }
+        if (this.creationDate == null) {
+            this.creationDate = LocalDateTime.now();
+        }
+    }
+
+    // Note: No @PreUpdate needed as there is no 'updatedAt' field in this class.
+
+    // -------------------------------------------------------------------------
+    // Getters and Setters
+    // -------------------------------------------------------------------------
+
     public UUID getId() { return id; }
     public void setId(UUID id) { this.id = id; }
 
@@ -107,7 +179,12 @@ public class Customer {
     public void setBalance(double balance) { this.balance = balance; }
 
     public LocalDateTime getCreationDate() { return creationDate; }
+    // Setter typically not used for creationDate as it's immutable after creation
     public void setCreationDate(LocalDateTime creationDate) { this.creationDate = creationDate; }
+
+    // -------------------------------------------------------------------------
+    // Overrides
+    // -------------------------------------------------------------------------
 
     @Override
     public String toString() {
